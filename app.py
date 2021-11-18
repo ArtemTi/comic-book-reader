@@ -12,6 +12,8 @@ application = Flask(__name__, static_url_path="/comic-book-reader/static", stati
 
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 
+print('start')
+
 def allowed_file(filename):
     return '.' in filename and \
         filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -24,7 +26,8 @@ def allowed_file(filename):
 @cbr.route('/')
 @cbr.route('/index')
 def index():
-    return render_template('index.html', title='Damish\'s ComicBookReader')
+  print('xyu')
+  return render_template('./index.html', title='Damish\'s ComicBookReader')
 
 @cbr.route('/segment', methods=['POST'])
 def segment():

@@ -5,13 +5,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
     image: comic-book-reader
     container_name: comic-book-reader
     restart: unless-stopped
-    networks:
-      - shared-network
-
-networks:
-  shared-network:
-    external:
-      name: videochat-infrastructure_shared-network

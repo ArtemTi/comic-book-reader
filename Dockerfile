@@ -5,11 +5,11 @@ ADD . /comic-book-reader
 WORKDIR /comic-book-reader
 
 RUN apt-get update \
-    && apt-get install -y enchant \
-    && apt-get install -y tesseract-ocr \
-    && apt-get install -y libtesseract-dev \
-    && pip install --upgrade pip \
-    && pip install --no-cache-dir -r requirements.txt
+  && apt-get install -y python3-enchant \
+  && apt-get install -y tesseract-ocr \
+  && apt-get install -y libtesseract-dev \
+  && pip install --upgrade pip \
+  && pip install --no-cache-dir -r requirements.txt
 
 EXPOSE 8080
 
