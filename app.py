@@ -26,7 +26,6 @@ def allowed_file(filename):
 @cbr.route('/')
 @cbr.route('/index')
 def index():
-  print('xyu')
   return render_template('./index.html', title='Damish\'s ComicBookReader')
 
 @cbr.route('/segment', methods=['POST'])
