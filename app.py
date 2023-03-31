@@ -3,6 +3,8 @@ import base64
 import io
 import numpy
 import os
+from flask_cors import CORS
+
 
 from comic_book_reader import parseComicSpeechBubbles, segmentPage, findSpeechBubbles
 from flask import Flask, Blueprint, jsonify, render_template, request, send_file
@@ -11,6 +13,10 @@ cbr = Blueprint('cbr', __name__,  url_prefix='/comic-book-reader')
 application = Flask(__name__, static_url_path="/comic-book-reader/static", static_folder="static")
 
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+
+
+CORS(application)
+
 
 print('start')
 
@@ -27,6 +33,30 @@ def allowed_file(filename):
 @cbr.route('/index')
 def index():
   return render_template('./index.html', title='Damish\'s ComicBookReader')
+
+def process_image(file):
+    if file and allowed_file(file.filename):
+        npimg = numpy.fromstring(file.read(), numpy.uint8)
+        img = cv2.imdecode(npimg, cv2.IMREAD_COLOR)
+        croppedImageList = segmentPage(img)
+        pageText = parseComicSpeechBubbles(croppedImageList)
+        return {"pageText": pageText}
+    else:
+        return {"error": "Invalid file format"}
+
+@cbr.route('/upload', methods=['POST'])
+def upload_images():
+    if request.method == 'POST':
+        images = request.files.getlist('file[]')
+        if not images:
+            return jsonify({"error": "No images received"}), 400
+        results = []
+        for image in images:
+            # Ovdje obradi sliku i dodaj rezultat u 'results' listu
+            result = process_image(image)
+            results.append(result)
+        return jsonify(results)
+    
 
 @cbr.route('/segment', methods=['POST'])
 def segment():

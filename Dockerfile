@@ -10,6 +10,7 @@ RUN apt-get update \
   && apt-get install tesseract-ocr-hrv \
   && apt-get install -y libtesseract-dev \
   && pip install --upgrade pip \
+  && pip install flask_cors \
   && pip install --no-cache-dir -r requirements.txt
 
 EXPOSE 8080
