@@ -109,7 +109,7 @@ def processScript(script):
 
     for char in script:
         # Comic books tend to be written in upper case, so we remove anything other than upper case chars
-        if char not in ' -QWERTYUIOPASDFGHJKLZXCVBNMĐŠŽČĆ,.?!""\'’1234567890':
+        if char not in ' -ABCČĆDDžĐEFGHIJKLLjMNjOPRSŠTUVZŽ,.?!""\'’1234567890':
             script = script.replace(char,'')
 
     # This line removes "- " and concatenates words split on two lines
@@ -118,9 +118,9 @@ def processScript(script):
     words = script.split()
     for i in range(0, len(words)):
 
-        # Remove single chars other than 'I' and 'A'
+        # Remove single chars other than 'A' 'E' 'I' 'O' 'U' 'S'
         if len(words[i]) == 1:
-            if (words[i] != 'I' and words[i] != 'U'and words[i] != 'S'):
+             if words[i] not in ['I', 'A', 'U', 'S', 'E', 'O', 'K', ]:
                 words[i] = ''
 
     # Remove any duplicated spaces
@@ -128,8 +128,9 @@ def processScript(script):
     words = script.split()
     final = ' '.join(words)
 
-    # Remove all two char lines other than 'NO' and 'OK'
-    if len(final) == 2 and script != "NO" and script != "OK":
+    # Remove all two char lines other than two_letter_words
+    two_letter_words = ["OK", "DA", "NE", "SE", "SA", "NA", "TI", "MI", "DO", "SU", "JE", "NI", "KO", "LI", "NO", "ZA", "PO", "SI"]
+    if len(final) == 2 and script not in two_letter_words:
         return ''
 
     return final
