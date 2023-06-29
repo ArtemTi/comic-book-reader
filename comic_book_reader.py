@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 
 import cv2
 import enchant
@@ -98,6 +97,8 @@ def processScript(script):
     # Some modern comics have this string on their cover page
     if "COMICS.COM" in script:
         return ''
+    if script == '':
+        return ''
 
     # Tesseract sometimes picks up 'I' chars as '|'
     script = script.replace('|','I')
@@ -129,10 +130,12 @@ def processScript(script):
     final = ' '.join(words)
 
     # Remove all two char lines other than two_letter_words
-    two_letter_words = ["OK", "DA", "NE", "SE", "SA", "NA", "TI", "MI", "DO", "SU", "JE", "NI", "KO", "LI", "NO", "ZA", "PO", "SI"]
+    two_letter_words = ["OK", "DA", "NE", "SE", "SA", "NA", "TI", "MI", "DO", "SU", "JE", "NI", "KO", "LI", "NO", "ZA", "PO", "SI", "BI","IH","ME","OH","MR","TE", "JA", "PO","ON","TO","OD","PA","MO","MA","HO","HE","ĆE","CE","LI","EH"]
     if len(final) == 2 and script not in two_letter_words:
         return ''
-
+    print(final, flush=True)
+    final_words = [word for word in words if len(word) != 2 or word in two_letter_words]
+    final = ' '.join(final_words)
     return final
 
 # Apply the ocr engine to the given image and return the recognized script where illegitimate characters are filtered out

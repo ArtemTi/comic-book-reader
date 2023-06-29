@@ -10,3 +10,8 @@ services:
     image: comic-book-reader
     container_name: comic-book-reader
     restart: unless-stopped
+    environment:
+      PYTHONUNBUFFERED: 1
+      FLASK_ENV: development
+    volumes:
+      - .:/comic-book-reader

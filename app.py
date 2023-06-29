@@ -4,6 +4,7 @@ import io
 import numpy
 import os
 from flask_cors import CORS
+import concurrent.futures
 
 
 from comic_book_reader import parseComicSpeechBubbles, segmentPage, findSpeechBubbles
@@ -18,7 +19,7 @@ ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 CORS(application)
 
 
-print('start')
+print('start hehe')
 
 def allowed_file(filename):
     return '.' in filename and \
@@ -34,13 +35,13 @@ def allowed_file(filename):
 def index():
   return render_template('./index.html', title='Damish\'s ComicBookReader')
 
-def process_image(file):
+def process_image(file, image_number):
     if file and allowed_file(file.filename):
         npimg = numpy.fromstring(file.read(), numpy.uint8)
         img = cv2.imdecode(npimg, cv2.IMREAD_COLOR)
         croppedImageList = segmentPage(img)
         pageText = parseComicSpeechBubbles(croppedImageList)
-        return {"pageText": pageText}
+        return {"PageNumber": image_number, "PageText": pageText}
     else:
         return {"error": "Invalid file format"}
 
@@ -48,15 +49,21 @@ def process_image(file):
 def upload_images():
     if request.method == 'POST':
         images = request.files.getlist('file[]')
-        if not images:
-            return jsonify({"error": "No images received"}), 400
-        results = []
+    if not images:
+        return jsonify({"error": "No images received"}), 400
+    results = []
+    i=1
+    with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
+        futures = []
         for image in images:
-            # Ovdje obradi sliku i dodaj rezultat u 'results' listu
-            result = process_image(image)
+            future = executor.submit(process_image, image, i)
+            futures.append(future)
+            i += 1
+        for future in concurrent.futures.as_completed(futures):
+            result = future.result()
             results.append(result)
-        return jsonify(results)
-    
+    sorted_results = sorted(results, key=lambda x: x['PageNumber'])
+    return jsonify(sorted_results)
 
 @cbr.route('/segment', methods=['POST'])
 def segment():
@@ -77,7 +84,7 @@ def segment():
             io.BytesIO(buffer),
             mimetype='image/jpeg',
             as_attachment=True,
-            attachment_filename='image.jpg')
+            download_name='image.jpg')
 
 @cbr.route('/read', methods=['POST'])
 def read():
