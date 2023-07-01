@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 
 import cv2
 import enchant
@@ -10,7 +9,7 @@ import re
 from autocorrect import Speller
 from PIL import Image
 
-d = enchant.Dict("en_US")
+d = enchant.Dict("en_US") 
 spell = Speller(lang='en')
 
 # Crop image by removing a number of pixels
@@ -98,6 +97,8 @@ def processScript(script):
     # Some modern comics have this string on their cover page
     if "COMICS.COM" in script:
         return ''
+    if script == '':
+        return ''
 
     # Tesseract sometimes picks up 'I' chars as '|'
     script = script.replace('|','I')
@@ -109,7 +110,7 @@ def processScript(script):
 
     for char in script:
         # Comic books tend to be written in upper case, so we remove anything other than upper case chars
-        if char not in ' -QWERTYUIOPASDFGHJKLZXCVBNM,.?!""\'’1234567890':
+        if char not in ' -ABCČĆDDžĐEFGHIJKLLjMNjOPRSŠTUVZŽ,.?!""\'’1234567890':
             script = script.replace(char,'')
 
     # This line removes "- " and concatenates words split on two lines
@@ -117,14 +118,10 @@ def processScript(script):
     script = re.sub(r"(?<!-)- ", "", script)
     words = script.split()
     for i in range(0, len(words)):
-        # Spellcheck all words
-        if not d.check(words[i]):
-            alphaWord = ''.join([j for j in words[i] if j.isalpha()])
-            if alphaWord and not d.check(alphaWord):
-                words[i]=spell(words[i].lower()).upper()
-        # Remove single chars other than 'I' and 'A'
+
+        # Remove single chars other than 'A' 'E' 'I' 'O' 'U' 'S'
         if len(words[i]) == 1:
-            if (words[i] != 'I' and words[i] != 'A'):
+             if words[i] not in ['I', 'A', 'U', 'S', 'E', 'O', 'K', ]:
                 words[i] = ''
 
     # Remove any duplicated spaces
@@ -132,17 +129,20 @@ def processScript(script):
     words = script.split()
     final = ' '.join(words)
 
-    # Remove all two char lines other than 'NO' and 'OK'
-    if len(final) == 2 and script != "NO" and script != "OK":
+    # Remove all two char lines other than two_letter_words
+    two_letter_words = ["OK", "DA", "NE", "SE", "SA", "NA", "TI", "MI", "DO", "SU", "JE", "NI", "KO", "LI", "NO", "ZA", "PO", "SI", "BI","IH","ME","OH","MR","TE", "JA", "PO","ON","TO","OD","PA","MO","MA","HO","HE","ĆE","CE","LI","EH"]
+    if len(final) == 2 and script not in two_letter_words:
         return ''
-
+    print(final, flush=True)
+    final_words = [word for word in words if len(word) != 2 or word in two_letter_words]
+    final = ' '.join(final_words)
     return final
 
 # Apply the ocr engine to the given image and return the recognized script where illegitimate characters are filtered out
 def tesseract(image):
     # We could consider using tessedit_char_whitelist to limit the recognition of Tesseract. 
     #   Doing that degraded OCR performance in practice
-    script = pytesseract.image_to_string(image, lang = 'eng')
+    script = pytesseract.image_to_string(image, lang = 'hrv')
     return processScript(script)
 
 def segmentPage(image, shouldShowImage = False):
